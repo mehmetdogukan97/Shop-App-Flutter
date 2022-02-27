@@ -65,9 +65,9 @@ class Products with ChangeNotifier {
   //   notifyListeners();
   // }
 
-  void addProduct(Product product) {
+  Future<void> addProduct(Product product) {
     final url = Uri.https('flutter-update-3129e-default-rtdb.firebaseio.com','/products.json');
-    http.post(url,body: json.encode({//backend sending
+    return http.post(url,body: json.encode({//backend sending
       'title': product.title,
       'description': product.description,
       'price': product.price,
@@ -84,9 +84,7 @@ class Products with ChangeNotifier {
       );
       _items.add(newProduct);
       notifyListeners();
-
     });
-
   }
 
   void updateProduct(String id, Product newProduct){
