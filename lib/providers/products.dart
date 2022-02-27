@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import './product.dart';
 import 'package:http/http.dart' as http;
+
 class Products with ChangeNotifier {
   List<Product> _items = [
     Product(
@@ -65,17 +66,25 @@ class Products with ChangeNotifier {
   //   notifyListeners();
   // }
 
-  Future<void> addProduct(Product product) {
-    final url = Uri.https('flutter-update-3129e-default-rtdb.firebaseio.com','/products.json');
-    return http.post(url,body: json.encode({//backend sending
-      'title': product.title,
-      'description': product.description,
-      'price': product.price,
-      'imageUrl': product.imageUrl,
-      'isFavorite':product.isFavorite,
-
-    }),).then((response) {
-      final newProduct = Product(//fronted sending
+  Future<void> addProduct(Product product) async {
+    final url = Uri.https(
+        'flutter-update-3129e-default-rtdb.firebaseio.com', '/products.json');
+    try {
+      final response = await http.post(
+        url,
+        body: json.encode(
+          {
+            //backend sending
+            'title': product.title,
+            'description': product.description,
+            'price': product.price,
+            'imageUrl': product.imageUrl,
+            'isFavorite': product.isFavorite,
+          },
+        ),
+      );
+      final newProduct = Product(
+        //fronted sending
         id: json.decode(response.body)['name'],
         title: product.title,
         description: product.description,
@@ -84,22 +93,23 @@ class Products with ChangeNotifier {
       );
       _items.add(newProduct);
       notifyListeners();
-    });
+    } catch (error) {
+      throw (error);
+    }
   }
 
-  void updateProduct(String id, Product newProduct){
+  void updateProduct(String id, Product newProduct) {
     final prodIndex = _items.indexWhere((prod) => prod.id == id);
-    if(prodIndex >= 0){
+    if (prodIndex >= 0) {
       _items[prodIndex] = newProduct;
       notifyListeners();
-    }else{
+    } else {
       print('...');
     }
   }
 
-  void deleteProduct(String id){
+  void deleteProduct(String id) {
     _items.removeWhere((prod) => prod.id == id);
     notifyListeners();
   }
-
 }
